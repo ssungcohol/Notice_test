@@ -36,7 +36,7 @@ public class UserController {
 
     // =======================================================
     @PostMapping("/signup")
-    public String signup(@Valid SignupRequestDto signupRequestDto, BindingResult bindingResult) {
+    public String signup(@Valid SignupRequestDto signupRequestDto) {
         //@RequestBody 사용시에는 Json 형식으로 해야한다.
         // 이 상황의 경우에는 text 즉, x-www...이 형식에 k-v 로 입력해야지 값이 들어옴
         userService.signup(signupRequestDto);

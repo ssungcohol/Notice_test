@@ -19,31 +19,33 @@ public class Notice extends Timestamped {
 
     @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
-    private String username;
+//
+//    @Column(nullable = false)
+//    private String username;
 
     @Column(nullable = false)
     private String contents;
 
-    @Column(nullable = false)
-    private String password;
+    // 삭제 필요 => 토큰 사용으로 사용자의 정보 수정/삭제 하기 위해 사용
+//    @Column(nullable = false)
+//    private String password;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     //생성자
-    public Notice(NoticeRequestDto requestDto, Long userId){
+    public Notice(NoticeRequestDto requestDto, User user){
         // 서버에서 DB 저장에 필요한 값을 만들어주는 곳
-        this.username = requestDto.getUsername();
+//        this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
         this.title = requestDto.getTitle();
 //        this.password = requestDto.getPassword();
-        this.userId = userId;
+        this.user = user;
     }
 
     public void update(NoticeRequestDto requestDto) {
-        this.username = requestDto.getUsername();
+//        this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
         this.title = requestDto.getTitle();
     }

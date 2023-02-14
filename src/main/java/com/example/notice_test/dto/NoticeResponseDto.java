@@ -20,7 +20,7 @@ public class NoticeResponseDto {
 
     public NoticeResponseDto(Notice notice) {
         this.id = notice.getId();
-        this.username = notice.getUsername();
+        this.username = notice.getUser().getUsername();
         this.title = notice.getTitle();
         this.contents = notice.getContents();
         this.createdat = notice.getCreatedAt();

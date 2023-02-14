@@ -69,7 +69,7 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
             );
 
             // 요청받은 DTO 로 DB에 저장할 객체 만들기
-            Notice notice = noticeRepository.saveAndFlush(new Notice(requestDto, user.getId()));
+            Notice notice = noticeRepository.saveAndFlush(new Notice(requestDto, user));
 
             return new NoticeResponseDto(notice);
         } else {

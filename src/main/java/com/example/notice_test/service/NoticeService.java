@@ -81,64 +81,64 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
 
 //    =====================================================================================
 
-    // 선택 게시글 조회
-//    @Transactional (readOnly = true)
-//    public NoticeResponseDto getNotice(Long id) {
-//        Notice notice = noticeRepository.findById(id).orElseThrow(
-//                () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
-//        );
-//        NoticeResponseDto noticeResponseDto = new NoticeResponseDto(notice);
-//        return noticeResponseDto;
-//    }
+//     선택 게시글 조회
+    @Transactional (readOnly = true)
+    public NoticeResponseDto getNotice(Long id) {
+        Notice notice = noticeRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
+        );
+        NoticeResponseDto noticeResponseDto = new NoticeResponseDto(notice);
+        return noticeResponseDto;
+    }
 
     // 회원(토큰)게시글 조회
-    @Transactional(readOnly = true)
-    public List<NoticeResponseDto> getNotice(Long id, HttpServletRequest request) {
-        // Request에서 Token 가져오기 Header
-        String token = jwtUtil.resolveToken(request);
-        Claims claims;
-
-        // 토큰이 있는 경우에만 관심상품 조회 가능
-        if(token != null) {
-            // Token 검증
-            if (jwtUtil.validateToken(token)) {
-                // 토큰에서 사용자 정보 가져오기
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException("Token Error");
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-            );
-
-            // 사용자 권한 가져와서 ADMIN 이면 전체 조회, USER 면 본인이 추가한 부분 조회
-            UserRoleEnum userRoleEnum = user.getRole();
-            System.out.println("role = " + userRoleEnum);
-
-            List<NoticeResponseDto> list = new ArrayList<>();
-            List<Notice> noticeList;
-
-            if (userRoleEnum == UserRoleEnum.USER) {
-                // 사용자 권한이 USER일 경우
-                noticeList = noticeRepository.findAllByUserId(user.getId());
-//                noticeList = noticeRepository.findAllByOrderByModifiedAtDesc(); // 내림차순 조회 가능?
-//                noticeList = noticeRepository.findByIdAndUserId(Long id, Long userId);
-            } else {
-                noticeList = noticeRepository.findAll(); // 관리자일 경우에는 다 보여주기
-            }
-
-            for (Notice notice : noticeList) {
-                list.add(new NoticeResponseDto(notice));
-            }
-
-            return list;
-
-        }else {
-            return null;
-        }
-    }
+//    @Transactional(readOnly = true)  // 조회 기능이 붙어 readOnly 적용
+//    public List<NoticeResponseDto> getNotice(Long id) {
+//        // Request에서 Token 가져오기 Header
+//        String token = jwtUtil.resolveToken(Long id);
+//        Claims claims;
+//
+//        // 토큰이 있는 경우에만 자신의 게시글 조회 가능
+//        if(token != null) {
+//            // Token 검증
+//            if (jwtUtil.validateToken(token)) {
+//                // 토큰에서 사용자 정보 가져오기
+//                claims = jwtUtil.getUserInfoFromToken(token);
+//            } else {
+//                throw new IllegalArgumentException("Token Error");
+//            }
+//
+//            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
+//            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+//                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+//            );
+//
+//            // 사용자 권한 가져와서 ADMIN 이면 전체 조회, USER 면 본인이 추가한 부분 조회
+//            UserRoleEnum userRoleEnum = user.getRole();
+//            System.out.println("role = " + userRoleEnum);
+//
+//            List<NoticeResponseDto> list = new ArrayList<>();
+//            List<Notice> noticeList;
+//
+//            if (userRoleEnum == UserRoleEnum.USER) {
+//                // 사용자 권한이 USER일 경우
+//                noticeList = noticeRepository.findAllByUserId(user.getId());
+////                noticeList = noticeRepository.findAllByOrderByModifiedAtDesc(); // 내림차순 조회 가능?
+////                noticeList = noticeRepository.findByIdAndUserId(Long id, Long userId);
+//            } else {
+//                noticeList = noticeRepository.findAll(); // 관리자일 경우에는 다 보여주기
+//            }
+//
+//            for (Notice notice : noticeList) {
+//                list.add(new NoticeResponseDto(notice));
+//            }
+//
+//            return list;
+//
+//        }else {
+//            return null;
+//        }
+//    }
 
 //==========================================================================================================
 
@@ -157,8 +157,8 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
 
     // 회원(토큰) 게시글 수정 및 토큰 확인
     @Transactional
-    public NoticeMessageDto updateNotice(Long id, NoticeRequestDto requestDto, HttpServletRequest request) {
-        // Request에서 Token 가져오기
+    public NoticeResponseDto updateNotice(Long id, NoticeRequestDto requestDto, HttpServletRequest request) {
+        // NoticeResponseDto 타입! Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
 
@@ -183,7 +183,7 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
 
             notice.update(requestDto);
 
-            return new NoticeMessageDto("수정 성공");
+            return new NoticeResponseDto(notice); // 수정된 게시글 반환
 
         } else {
             return null;
@@ -241,7 +241,7 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
             return new NoticeMessageDto("삭제 성공");
 
         } else {
-            return null;
+            return new NoticeMessageDto("삭제 실패");
         }
     }
 

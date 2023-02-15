@@ -53,8 +53,8 @@ public class NoticeController {
 
     // 회원(토큰) 게시글 조회
     @GetMapping("/api/notice/{id}")
-    public List<NoticeResponseDto> getNotice(@PathVariable Long id, HttpServletRequest request) {
-        return noticeService.getNotice(id, request);
+    public NoticeResponseDto getNotice(@PathVariable Long id) {
+        return noticeService.getNotice(id);
     }
 
 //    ====================================================================================
@@ -66,8 +66,9 @@ public class NoticeController {
 //    }
 
     // 회원(토큰) 게시글 수정
-    @PutMapping("/api/notice/update/{id}")
-    public NoticeMessageDto updateNotice(@PathVariable Long id, @RequestBody NoticeRequestDto requestDto, HttpServletRequest request) {
+    @PutMapping("/api/notice/{id}")
+    public NoticeResponseDto updateNotice(@PathVariable Long id, @RequestBody NoticeRequestDto requestDto, HttpServletRequest request) {
+        // 메세지 반환이 아닌 수정된 게시글을 반환해야하기에 NoticeResponseDto로 타입 변환
         return noticeService.updateNotice(id, requestDto, request);
     }
 
@@ -83,9 +84,10 @@ public class NoticeController {
 
 
     // 회원(토큰) 게시글 삭제
-    @PutMapping("/api/notice/delete/{id}")
+    @DeleteMapping("/api/notice/{id}")
+    // 삭제 Delete 방식 매핑
     public NoticeMessageDto deleteNotice(@PathVariable Long id, @RequestBody NoticeRequestDto requestDto, HttpServletRequest request) {
-        return noticeService.updateNotice(id, requestDto, request);
+        return noticeService.deleteNotice(id, requestDto, request);
     }
 
 

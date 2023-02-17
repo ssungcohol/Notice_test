@@ -162,7 +162,7 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
         String token = jwtUtil.resolveToken(request);
         Claims claims;
 
-        // 토큰이 있는 경우에만 관심상품 최저가 업데이트 가능
+        // 토큰이 있는 경우에만 게시물 업데이트 가능
         if (token != null) {
             // Token 검증
             if (jwtUtil.validateToken(token)) {
@@ -177,23 +177,25 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
                     () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
             );
 
-            // Admin 조건 추가해주기
-
-
+            // 게시물이 있는지 없는지, 게시물의 id도 가지고 와서 게시물이 있는지 없는지 확인 했음
             Notice notice = noticeRepository.findByIdAndUserId(id, user.getId()).orElseThrow(
                     () -> new NullPointerException("해당 게시물이 존재하지 않습니다.")
             );
 
-            notice.update(requestDto);
 
-            return new NoticeResponseDto(notice); // 수정된 게시글 반환
+            // Admin 조건 추가해주기 & 모든 게시글 수정 가능
+            if (user.getRole() == UserRoleEnum.ADMIN || notice.getUser().getUsername().equals(user.getUsername())) {
+
+                notice.update(requestDto);
+
+                return new NoticeResponseDto(notice); // 수정된 게시글 반환
+
+            } else return null;
 
         } else {
             return null;
         }
     }
-
-
 
 
 //    =====================================================================================================
@@ -239,13 +241,17 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
                     () -> new NullPointerException("해당 게시물이 존재하지 않습니다.")
             );
 
-            noticeRepository.deleteById(id);
+            if (user.getRole() == UserRoleEnum.ADMIN || notice.getUser().getUsername().equals(user.getUsername())) {
 
-            return new NoticeMessageDto("삭제 성공");
+                noticeRepository.deleteById(id);
 
-        } else {
-            return new NoticeMessageDto("삭제 실패");
+                return new NoticeMessageDto("삭제 성공");
+            } else {
+                return new NoticeMessageDto("삭제 실패");
+            }
+
         }
+        return new NoticeMessageDto("삭제 실패");
     }
 
 }

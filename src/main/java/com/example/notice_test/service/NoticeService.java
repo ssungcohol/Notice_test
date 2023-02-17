@@ -177,6 +177,9 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
                     () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
             );
 
+            // Admin 조건 추가해주기
+
+
             Notice notice = noticeRepository.findByIdAndUserId(id, user.getId()).orElseThrow(
                     () -> new NullPointerException("해당 게시물이 존재하지 않습니다.")
             );

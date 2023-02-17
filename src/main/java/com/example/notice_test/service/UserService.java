@@ -22,7 +22,7 @@ public class UserService {
     // userRepository 와 연결
 
     // ADMIN TOKEN 지정
-    private static final String ADMIN_TOKEN = "";
+    private static final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     //Jwt Util 의존성 주입
     private final JwtUtil jwtUtil;
@@ -30,6 +30,7 @@ public class UserService {
     public void signup(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
         String password = signupRequestDto.getPassword();
+        String email = signupRequestDto.getEmail();
 
         // 회원 중복 여부 확인
         Optional<User> found = userRepository.findByUsername(username);
@@ -37,12 +38,10 @@ public class UserService {
             throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
 
-        String email = signupRequestDto.getEmail();
-
         // 일반, 관리자 확인
         UserRoleEnum role = UserRoleEnum.USER; // userRollEnum 에 주고나서
         if(signupRequestDto.isAdmin()){ // admin이 있는지 없는지 확인
-            if(signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) { //admin true 라면
+            if(!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) { //admin true 라면
                 throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능 합니다.");
             }
             role = UserRoleEnum.ADMIN;

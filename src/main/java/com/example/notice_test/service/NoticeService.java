@@ -178,13 +178,13 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
             );
 
             // 게시물이 있는지 없는지, 게시물의 id도 가지고 와서 게시물이 있는지 없는지 확인 했음
-            Notice notice = noticeRepository.findByIdAndUserId(id, user.getId()).orElseThrow(
+            Notice notice = noticeRepository.findById(id).orElseThrow(
                     () -> new NullPointerException("해당 게시물이 존재하지 않습니다.")
             );
 
 
             // Admin 조건 추가해주기 & 모든 게시글 수정 가능
-            if (user.getRole() == UserRoleEnum.ADMIN || notice.getUser().getUsername().equals(user.getUsername())) {
+            if (user.getRole().equals(UserRoleEnum.ADMIN) || notice.getUser().getUsername().equals(user.getUsername())) {
 
                 notice.update(requestDto);
 
@@ -196,7 +196,6 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
             return null;
         }
     }
-
 
 //    =====================================================================================================
     // 게시글 삭제
@@ -237,7 +236,7 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
                     () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
             );
 
-            Notice notice = noticeRepository.findByIdAndUserId(id, user.getId()).orElseThrow(
+            Notice notice = noticeRepository.findById(id).orElseThrow(
                     () -> new NullPointerException("해당 게시물이 존재하지 않습니다.")
             );
 

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Service  // 이곳은 DB와 연결을 해주는 서비스다! 라는걸 알려줌
+@Service  // 이곳은 DB와 연결을 해주는 서비스다! 라는걸 f알려줌
 @RequiredArgsConstructor
 public class NoticeService {  // 이곳에서 데이터베이스와 연결을 해줌
 

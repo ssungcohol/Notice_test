@@ -1,6 +1,7 @@
 package com.example.notice_test.entity;
 
 import lombok.Getter;
+import net.bytebuddy.asm.Advice;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -19,4 +20,10 @@ public class Timestamped {
 
     @LastModifiedDate
     private LocalDateTime modifiedAt;
+
+    @CreatedDate
+    private LocalDateTime commentCreatedAt;
+
+    @LastModifiedDate
+    private LocalDateTime commentModifiedAt;
 }

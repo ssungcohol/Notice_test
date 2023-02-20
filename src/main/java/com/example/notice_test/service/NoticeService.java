@@ -1,12 +1,15 @@
 package com.example.notice_test.service;
 
+import com.example.notice_test.dto.CommentResponseDto;
 import com.example.notice_test.dto.NoticeMessageDto;
 import com.example.notice_test.dto.NoticeRequestDto;
 import com.example.notice_test.dto.NoticeResponseDto;
+import com.example.notice_test.entity.Comment;
 import com.example.notice_test.entity.Notice;
 import com.example.notice_test.entity.User;
 import com.example.notice_test.entity.UserRoleEnum;
 import com.example.notice_test.jwt.JwtUtil;
+import com.example.notice_test.repository.CommentRepository;
 import com.example.notice_test.repository.NoticeRepository;
 import com.example.notice_test.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Service  // 이곳은 DB와 연결을 해주는 서비스다! 라는걸 f알려줌
+@Service  // 이곳은 DB와 연결을 해주는 서비스다! 라는걸 알려줌
 @RequiredArgsConstructor
 public class NoticeService {  // 이곳에서 데이터베이스와 연결을 해줌
 
@@ -27,16 +30,26 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
+    private final CommentRepository commentRepository;
+
     // 게시글 목록 조회
     public List<NoticeResponseDto> getNotice() {
         List <Notice> noticeList = noticeRepository.findAllByOrderByModifiedAtDesc(); // 리스트 형태로 내림차순 정리
+        List<Comment> commentList = new ArrayList<>();
         List <NoticeResponseDto> noticeResponseDtoList = new ArrayList<>();
         for (Notice notice : noticeList) {
-            NoticeResponseDto tmp = new NoticeResponseDto(notice);
-            noticeResponseDtoList.add(tmp);
+            for (Comment comment : notice.getComments()) {
+                commentList.add(comment);
+            }
+            commentList = commentRepository.findAllByOrderByModifiedAtDesc();
+            noticeResponseDtoList.add(new NoticeResponseDto(notice, commentList));
         }
         return noticeResponseDtoList;
     }
+
+//    List<Comment> commentList = new ArrayList<>(notice.getComments());
+
+
 //==================================================================================================
     // 게시글 작성
 //    @Transactional
@@ -54,7 +67,7 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
         String token = jwtUtil.resolveToken(request);
         Claims claims;
 
-        // 토큰이 있는 경우에만 관심상품 추가 가능
+        // 토큰이 있는 경우에만 게시글 추가 가능
         if (token != null) {
             if (jwtUtil.validateToken(token)) {
                 // 토큰에서 사용자 정보 가져오기
@@ -71,13 +84,14 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
             // 요청받은 DTO 로 DB에 저장할 객체 만들기
             Notice notice = noticeRepository.saveAndFlush(new Notice(requestDto, user));
 
-            return new NoticeResponseDto(notice);
+
+            return new NoticeResponseDto(notice, null);
+            // 작성시에는 댓글이 없음
+
         } else {
             return null;
         }
     }
-
-
 
 //    =====================================================================================
 
@@ -87,7 +101,15 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
         Notice notice = noticeRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
         );
-        NoticeResponseDto noticeResponseDto = new NoticeResponseDto(notice);
+
+//        Comment comment = commentRepository.findById(id).orElseThrow(
+//                () -> new IllegalArgumentException("해당 게시물에 댓글이 존재하지 않습니다.")
+//        );
+
+        List<Comment> commentList = new ArrayList<>(notice.getComments());
+        // 게시글의 댓글만 가져오기
+
+        NoticeResponseDto noticeResponseDto = new NoticeResponseDto(notice, commentList);
         return noticeResponseDto;
     }
 
@@ -182,13 +204,16 @@ public class NoticeService {  // 이곳에서 데이터베이스와 연결을 �
                     () -> new NullPointerException("해당 게시물이 존재하지 않습니다.")
             );
 
+            List<Comment> commentList = new ArrayList<>(notice.getComments());
+            // 게시글 id 값의 댓글만 가져오면 됨 List 형태로
+
 
             // Admin 조건 추가해주기 & 모든 게시글 수정 가능
             if (user.getRole().equals(UserRoleEnum.ADMIN) || notice.getUser().getUsername().equals(user.getUsername())) {
 
                 notice.update(requestDto);
 
-                return new NoticeResponseDto(notice); // 수정된 게시글 반환
+                return new NoticeResponseDto(notice, commentList); // 수정된 게시글 반환
 
             } else return null;
 

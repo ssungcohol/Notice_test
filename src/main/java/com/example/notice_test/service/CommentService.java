@@ -32,22 +32,22 @@ public class CommentService {
     private final NoticeRepository noticeRepository;
 
 
-    // 댓글 조회 => 게시글 id를 가지고와서 해당 게시글의 댓글만 표시
-    public List<CommentResponseDto> getComment(Long id) {
-        List <Comment> commentList = commentRepository.findAllByOrderByCommentModifiedAtDesc();
-        List <CommentResponseDto> commentResponseDtoList = new ArrayList<>();
-        for (Comment comment : commentList) {
-            CommentResponseDto tmp = new CommentResponseDto(comment);
-            commentResponseDtoList.add(tmp);
-        }
-        return commentResponseDtoList;
-    }
+    // 댓글 조회 => 게시글 (noticeId) 조회 시 해당 게시글의 댓글 표시
+//    public List<CommentResponseDto> getComment(Long noticeId) {
+//        List <Comment> comments = commentRepository.findAllByOrderByCommentModifiedAtDesc();
+//        List <CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+//        for (Comment comment : comments) {
+//            CommentResponseDto tmp = new CommentResponseDto(comment);
+//            commentResponseDtoList.add(tmp);
+//        }
+//        return commentResponseDtoList;
+//    }
 
 
 
     // 댓글 작성
     @Transactional
-    public CommentResponseDto creatComment(Long id, CommentRequestDto requestDto, HttpServletRequest request) {
+    public CommentResponseDto creatComment(Long noticeId, CommentRequestDto comRequestDto, HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
         Claims claims;
 
@@ -66,13 +66,13 @@ public class CommentService {
             );
 
             // 게시글 DB 유무 확인 필요
-            Notice notice = noticeRepository.findById(id).orElseThrow(
+            Notice notice = noticeRepository.findById(noticeId).orElseThrow(
                     () -> new NullPointerException("해당 게시물이 없습니다.")
             );
 
 
             // 요청받은 DTO로 DB에 저장할 객체 만들기
-            Comment comment = commentRepository.saveAndFlush(new Comment(requestDto, user, notice));
+            Comment comment = commentRepository.saveAndFlush(new Comment(comRequestDto, user, notice));
 
             return new CommentResponseDto(comment);
 
@@ -85,7 +85,7 @@ public class CommentService {
 
     // 댓글 수정 해당 사용가자 작성한 댓글만 수정 가능 & 댓글 DB 파악 여부 확인
     @Transactional
-    public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto, HttpServletRequest request) {
+    public CommentResponseDto updateComment(Long noticeId, Long commentId, CommentRequestDto comRequestDto, HttpServletRequest request) {
 
 
         String token = jwtUtil.resolveToken(request);
@@ -107,16 +107,16 @@ public class CommentService {
             );
 
             // 게시물 여부 파악 (DB에 게시물이 있나 없나 게시물 id 조회)
-            Notice notice = noticeRepository.findById(id).orElseThrow(
+            Notice notice = noticeRepository.findById(noticeId).orElseThrow(
                     () -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다.")
             );
 
             // 댓글 여부 파악 (ID 조회 필요)
-            Comment comment = commentRepository.findById(id).orElseThrow(
+            Comment comment = commentRepository.findById(commentId).orElseThrow(
                     () -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다.")
             );
 
-            comment.update(requestDto);
+            comment.update(comRequestDto);
 
             return new CommentResponseDto(comment);
 
@@ -129,7 +129,7 @@ public class CommentService {
 
     // 댓글 삭제
     @Transactional
-    public CommentMessageDto deleteComment(Long id, CommentRequestDto requestDto, HttpServletRequest request) {
+    public CommentMessageDto deleteComment(Long noticeId, Long commentId, CommentRequestDto comRequestDto, HttpServletRequest request) {
         // 1. jwt Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -151,11 +151,11 @@ public class CommentService {
                     () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
             );
 
-            Notice notice = noticeRepository.findById(id).orElseThrow(
+            Notice notice = noticeRepository.findById(noticeId).orElseThrow(
                     () -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다.")
             );
 
-            commentRepository.deleteById(id);
+            commentRepository.deleteById(commentId);
 
             return new CommentMessageDto("댓글 삭제 성공");
         } else return new CommentMessageDto("댓글 삭제 실패");

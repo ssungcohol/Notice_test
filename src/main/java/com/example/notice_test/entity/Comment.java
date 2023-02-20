@@ -1,6 +1,7 @@
 package com.example.notice_test.entity;
 
 import com.example.notice_test.dto.CommentRequestDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ public class Comment extends Timestamped {
     // 댓글 id PK
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "commentId")
     private Long id;
 
 
@@ -23,12 +25,14 @@ public class Comment extends Timestamped {
     private String comment;
 
     // 회원 id
+    @JsonIgnore  //  순환참조 방지제 => 이분 때문에 사용자정보 다 가지고 왔음
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
 
-    // 게시물 id
+    // 게시물과 연관관계 매핑
+    @JsonIgnore  // 순환참조 방지제
     @ManyToOne
     @JoinColumn(name = "notice_id")
     private Notice notice;
@@ -44,4 +48,15 @@ public class Comment extends Timestamped {
     public void update(CommentRequestDto requestDto) {
         this.comment = requestDto.getComment();
     }
+
+//    public void setNotice(Notice notice) {
+//
+//        if (this.notice != null) {
+//            this.notice.getComments().remove(this);
+//        }
+//        this.notice = notice;
+//        notice.getComments().add(this);
+//    }
+
+
 }

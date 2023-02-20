@@ -18,32 +18,32 @@ public class CommentController {
     private final CommentService commentService;
 
     // 댓글 조회
-    @GetMapping ("/api/notice/{id}/comments")
-    public List<CommentResponseDto> getComment(@PathVariable Long id) {
-        return commentService.getComment(id);
-    }
+//    @GetMapping ("/api/notice/{noticeId}/comments")
+//    public List<CommentResponseDto> getComment(@PathVariable Long noticeId) {
+//        return commentService.getComment(noticeId);
+//    }
 
 
     // 댓글 작성
-    @PostMapping("/api/notice/{id}/comment")
-    public CommentResponseDto creatComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest request) {
+    @PostMapping("/api/notice/{noticeId}/comment")
+    public CommentResponseDto creatComment(@PathVariable Long noticeId, @RequestBody CommentRequestDto comRequestDto, HttpServletRequest request) {
 
-        return commentService.creatComment(id, requestDto, request);
+        return commentService.creatComment(noticeId, comRequestDto, request);
     }
 
     // 댓글 수정
-    @PutMapping("api/notice/{id}/comment")
-    public CommentResponseDto updateComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest request) {
+    @PutMapping("api/notice/{noticeId}/comment/{commentId}")
+    public CommentResponseDto updateComment(@PathVariable Long noticeId, @PathVariable Long commentId, @RequestBody CommentRequestDto comRequestDto, HttpServletRequest request) {
 
-        return commentService.updateComment(id, requestDto, request);
+        return commentService.updateComment(noticeId, commentId, comRequestDto, request);
     }
 
 
     // 댓글 수정
-    @DeleteMapping("/api/notice/{id}/comment")
-    public CommentMessageDto deleteComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest request) {
+    @DeleteMapping("/api/notice/{noticeId}/comment/{commentId}")
+    public CommentMessageDto deleteComment(@PathVariable Long noticeId, @PathVariable Long commentId, @RequestBody CommentRequestDto comRequestDto, HttpServletRequest request) {
 
-        return commentService.deleteComment(id, requestDto, request);
+        return commentService.deleteComment(noticeId, commentId, comRequestDto, request);
     }
 
 }

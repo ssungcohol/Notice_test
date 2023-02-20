@@ -21,9 +21,11 @@ public class Timestamped {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    @CreatedDate
-    private LocalDateTime commentCreatedAt;
+//    @CreatedDate
+//    private LocalDateTime commentCreatedAt;
+//
+//    @LastModifiedDate
+//    private LocalDateTime commentModifiedAt;
 
-    @LastModifiedDate
-    private LocalDateTime commentModifiedAt;
+    // 생성, 수정 시간 중복 표시
 }
